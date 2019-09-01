@@ -264,5 +264,6 @@ python wiznote2hexo2csdn.py --mode=hexomarkdown2csdn --path=E:/blog/_posts --sav
 - [x] 支持群组笔记(当`ExportToMd\ExportToMd.js`中的`useEditorMd: false`不支持)
 - [x] 支持保存图片到与markdown同名的目录
 - [x] 复制图片时重命名，若index_files文件夹中有重名的，则重命名(Part)
+- [x] 支持根据为知笔记Markdown中的位置保存笔记
 
 

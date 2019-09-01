@@ -22,11 +22,12 @@
 ### 日志
 [2019-09-01]
 - 新增支持markdown的updated标签
-- 新增支持多级目录，设置showRootDir为false
+- 新增支持多级目录，删除showRootDir配置项
 - 新增tags和categories各项之间使用", "间隔，更加美观
 - 新增配置项useEditorMd支持使用`Wiz.Editor.md插件`将html转为markdown
 - 支持群组笔记(当`ExportToMd.js`中的`useEditorMd: false`不支持)
 - 新增配置项saveImgMdName支持保存图片到与markdown同名的目录
+- 新增配置项saveAccordingMdCategories支持根据为知笔记Markdown中的位置保存笔记
 
 [2018-07-10]
 - 新增配置项showRootDir导出标签categories是否为文件路径根目录
