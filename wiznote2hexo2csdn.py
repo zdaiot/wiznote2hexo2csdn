@@ -84,11 +84,11 @@ def get_qcloud_client(secret_id, secret_key, region, token=None):
     from qcloud_cos import CosClientError
     import logging, sys
 
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    # logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     # 设置用户属性, 包括secret_id, secret_key, region
     config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token)  # 获取配置对象
     client = CosS3Client(config)
-    print('client qcloud:', client)
+    # print('client qcloud:', client)
     return client
 
 def wiznote2hexo(path, pic_ori_path, mdfile_name):
@@ -102,10 +102,9 @@ def wiznote2hexo(path, pic_ori_path, mdfile_name):
     
     return：None
     '''
-    filepath = os.path.join(path + mdfile_name)
+    filepath = os.path.join(path, mdfile_name)
     # 以markdown的文件名(无后缀)建立文件夹放置图片
     pic_new_path = os.path.splitext(os.path.basename(mdfile_name))[0]
-    os.rename('index_files', pic_new_path)
 
     with open(filepath, 'r', encoding='UTF-8') as fr:
         data = fr.read()
@@ -127,7 +126,9 @@ def wiznote2hexo(path, pic_ori_path, mdfile_name):
         line = line.replace(pic_ori_path, pic_new_path)
 
         lines[row] = line
-    head = '---\ntitle: {}\ndate:\ntags:\ncategories:\ncopyright: true\nmathjax:\n---\n'.format(pic_new_path)
+
+    os.rename(os.path.join(path, 'index_files'), os.path.join(path, pic_new_path))    
+    head = '---\ntitle: {}\ndate:\ntags:\ncategories:\ncopyright: true\nmathjax:\n---\n\n'.format(pic_new_path)
     lines = [x+'\n' for x in lines]
     lines.insert(0,head) 
     with open(filepath, 'w', encoding='UTF-8') as fw:
@@ -135,18 +136,18 @@ def wiznote2hexo(path, pic_ori_path, mdfile_name):
 
 def md2hexo(path, pic_ori_path, mdfile_path_name, save_path):
     '''将一个Markown文件中的图片路径更改为markdown文件名；建立以为markdown文件名命名的文件夹，并将该Markdown的所有图片移动到该文件夹。
-        根据markdown文件中的 categories 建立文件夹，并将更改后的markdown文件和图片移动到该文件夹。
+        根据markdown文件中的 categories 建立文件夹，并将更改后的markdown文件和图片文件夹移动到该文件夹。
         该方法适用于 https://github.com/lzuliuyun/ExportToMd 从为知笔记导出的笔记转为hexo格式的笔记。
 
     Args：
         path: 存放markdown文件的根路径
         pic_ori_path: 存放所有图片的原始路径
         mdfile_path_name: 单个markdown的路径+名称
-        save_path: markdown文件文件的保存根路径
+        save_path: markdown文件文件的保存根路径，结尾不以 / 结尾
 
     return：None
     '''
-    print('Change markdown file {} to hexo', mdfile_path_name)
+    print('Change markdown file {} to hexo markdown'.format(mdfile_path_name))
     # 以markdown的文件名(无后缀)建立文件夹放置图片
     mdfile_name = os.path.basename(mdfile_path_name)
     pic_new_path = os.path.splitext(mdfile_name)[0]
@@ -158,12 +159,17 @@ def md2hexo(path, pic_ori_path, mdfile_path_name, save_path):
     # 建立保存markdown的路径
     mdfile_new_path = save_path + '/' + categories
     if not os.path.exists(mdfile_new_path):
-        print('Making pth folder...')
+        print('Making {} folder.'.format(mdfile_new_path))
         os.makedirs(mdfile_new_path)
     # 建立保存图片的路径
     if not os.path.exists(os.path.join(mdfile_new_path, pic_new_path)):
-        print('Making pth folder...')
+        print('Making {} folder.'.format(os.path.join(mdfile_new_path, pic_new_path)))
         os.makedirs(os.path.join(mdfile_new_path, pic_new_path))
+    # 建立临时保存图片的路径
+    pic_tmp_path = os.path.join(path, 'tmp_'+pic_ori_path)
+    if not os.path.exists(pic_tmp_path):
+        # print('Making {} folder.'.format(pic_tmp_path))
+        os.makedirs(pic_tmp_path)
 
     lines = data.split('\n')
 
@@ -177,6 +183,8 @@ def md2hexo(path, pic_ori_path, mdfile_path_name, save_path):
                 try:
                     pic_new_fullpath_name = pic_ori_fullpath_name.replace(path, mdfile_new_path)
                     pic_new_fullpath_name = pic_new_fullpath_name.replace(pic_ori_path, pic_new_path)
+                    pic_tmp_fullpath_name = pic_ori_fullpath_name.replace(pic_ori_path, 'tmp_'+pic_ori_path)
+                    shutil.copy(pic_ori_fullpath_name, pic_tmp_fullpath_name)
                     shutil.move(pic_ori_fullpath_name, pic_new_fullpath_name)
                 except IOError as e:
                     if os.path.exists(pic_new_fullpath_name): print('图片 {} 已经移动，可能引用了相同的图片'.format(pic_new_fullpath_name.split('/')[-1]))
@@ -184,13 +192,17 @@ def md2hexo(path, pic_ori_path, mdfile_path_name, save_path):
             line = line.replace(pic_ori_path, pic_new_path)
             lines[row] = line
     lines = [x+'\n' for x in lines]
-
+    # 复制临时文件夹的内容到 pic_ori_path，保证 pic_ori_path 内容不变，方便之后使用
+    for pic_tmp_path_name in os.listdir(os.path.join(path, 'tmp_'+pic_ori_path)):
+        shutil.move(os.path.join(path, 'tmp_'+pic_ori_path, pic_tmp_path_name), os.path.join(path, pic_ori_path, pic_tmp_path_name))
+    # 删除临时文件夹
+    shutil.rmtree(os.path.join(path, 'tmp_'+pic_ori_path))
     with open(os.path.join(mdfile_new_path, mdfile_name), 'w', encoding='UTF-8') as fw:
         fw.writelines(lines)
     
 def markdown2hexo(path, pic_ori_path, save_path):
     '''将一个文件夹下的所有Markown文件中的图片路径更改为markdown文件名；建立以为markdown文件名命名的文件夹，并将该Markdown的所有图片移动到该文件夹。
-        根据markdown文件中的 categories 建立文件夹，并将更改后的markdown文件和图片移动到该文件夹。
+        根据markdown文件中的 categories 建立文件夹，并将更改后的markdown文件和图片文件夹移动到该文件夹。
         该方法适用于 https://github.com/lzuliuyun/ExportToMd 从为知笔记导出的笔记转为hexo格式的笔记。
     
     Args：
@@ -204,8 +216,9 @@ def markdown2hexo(path, pic_ori_path, save_path):
     for md_fullpath_name in mds_fullpath_name:
         md2hexo(path, pic_ori_path, md_fullpath_name, save_path)
         
-def hexomd2csdn(path, mdfile_path_name, save_path, use_qcloud, site_url, secret_id, secret_key, region, token=None, Bucket=None):
-    '''将markdown文件中的本地图片路径全部替换为远程图片路径，适用于hexo博客中的markdown文件
+def hexomd2csdn(path, mdfile_path_name, save_path, use_qcloud, site_url, secret_id, secret_key, region, token=None, Bucket=None, oss_path='_posts'):
+    '''将markdown文件中的本地图片路径全部替换为远程图片路径，其中，远程图片路径可以为github pages中的图片，也可以将图片上传到腾讯云对象存储。
+        适用于转换hexo博客中的markdown文件，转换得到的markdown文件可以直接复制到csdn平台、简书等支持markdown的平台。
 
     Args：
         path: 存放markdown文件的根路径
@@ -218,11 +231,12 @@ def hexomd2csdn(path, mdfile_path_name, save_path, use_qcloud, site_url, secret_
         region: 用户的region，当use_qcloud为1是，这个不能为空
         token: 使用临时秘钥需要传入Token，默认为空,可不填
         Bucket：用于的存储桶名称，当use_qcloud为1是，这个不能为空
-
+        oss_path: 腾讯云存储的根目录，当use_qcloud为1是，这个不能为空
     return：None
     '''
-    print('Change hexo markdown file {} to csdn', mdfile_path_name)
+    print('Change hexo markdown file {} to csdn markdown'.format(mdfile_path_name))
     mdfile_name = os.path.basename(mdfile_path_name)
+    mdfile_path = os.path.dirname(mdfile_path_name)
     pic_ori_path = os.path.splitext(mdfile_name)[0]
 
     with open(mdfile_path_name, 'r', encoding='UTF-8') as fr:
@@ -231,8 +245,7 @@ def hexomd2csdn(path, mdfile_path_name, save_path, use_qcloud, site_url, secret_
     categories, second_sign = get_categories(data)
     # 去掉头部信息
     data = data[second_sign:].strip() # strip() 用于移除字符串头尾指定的字符（默认为空格或换行符）
-    
-    if use_qcloud:
+    if use_qcloud == '1':
         client = get_qcloud_client(secret_id, secret_key, region, token=token)
 
     lines = data.split('\n')
@@ -242,25 +255,27 @@ def hexomd2csdn(path, mdfile_path_name, save_path, use_qcloud, site_url, secret_
         # 如果该行中含有图片的话，将所有图片的路径更换为新的地址
         if pics_ori_path_name:
             # 若使用腾讯云对象存储
-            if use_qcloud:
+            if use_qcloud == '1':
+                pics_ori_fullpath_name = [mdfile_path+'/'+pic_ori_path_name for pic_ori_path_name in pics_ori_path_name]
                 # 上传该行中的每一张图片
-                for pic_ori_path_name in  pics_ori_path_name:
+                for pic_ori_path_name, pic_ori_fullpath_name in zip(pics_ori_path_name, pics_ori_fullpath_name):
                     try:
-                        # 本地路径 简单上传
+                        # 本地路径 简单上传，上传到对象云储存的 _post根目录，保证与本地 _post 目录下的图片路径一致
+                        oss_path = oss_path + pic_ori_fullpath_name.split(path)[1]
                         response = client.put_object_from_local_file(
                             Bucket=Bucket,
-                            LocalFilePath=pic_ori_path_name,
-                            Key=pic_ori_path_name,
+                            LocalFilePath=pic_ori_fullpath_name,
+                            Key=oss_path,
                         )
-                        print('up:', response['ETag'])
+                        # print('up:', response['ETag'])
 
                         # 得到下载地址
                         response = client.get_presigned_download_url(
                             Bucket=Bucket,
-                            Key=pic_ori_path_name
+                            Key=oss_path
                         )
-                        print('geturl:', response)
-                        line = line.replace(pic_ori_path_names, response)
+                        # print('geturl:', response)
+                        line = line.replace(pic_ori_path_name, response)
                     except:
                         print('Upload image {} Error'.format(pic_ori_path_name))
             # 若使用 site_url 链接
@@ -271,15 +286,14 @@ def hexomd2csdn(path, mdfile_path_name, save_path, use_qcloud, site_url, secret_
     lines = [x+'\n' for x in lines]
     onemorething = ['\r\n','---\n','## One more thing\n','更多关于人工智能、Python、C++、计算机等知识，欢迎访问我的个人博客进行交流， [点这里~~](https://www.zdaiot.com)']
     lines = lines + onemorething
-
-    mdfile_new_path = os.path.dirname(mdfile_path_name).replace(path, save_path)
+    mdfile_new_path = mdfile_path.replace(path, save_path)
     if not os.path.exists(mdfile_new_path):
-        print('Making pth folder...')
+        print('Making {} folder...'.format(mdfile_new_path))
         os.makedirs(mdfile_new_path)
     with open(os.path.join(mdfile_new_path, mdfile_name), 'w', encoding='UTF-8') as fw:
         fw.writelines(lines)
 
-def hexomarkdown2csdn(path, save_path, use_qcloud, site_url, secret_id, secret_key, region, token=None, Bucket=None):
+def hexomarkdown2csdn(path, save_path, use_qcloud, site_url, secret_id, secret_key, region, token=None, Bucket=None, oss_path='_posts'):
     '''将path路径下的所有markdown文件中的本地图片路径全部替换为远程图片路径；适用于将hexo博客中的markdown文件转换为csdn格式的
 
     Args：
@@ -292,41 +306,45 @@ def hexomarkdown2csdn(path, save_path, use_qcloud, site_url, secret_id, secret_k
         region: 用户的region，当use_qcloud为1是，这个不能为空
         token: 使用临时秘钥需要传入Token，默认为空,可不填
         Bucket：用于的存储桶名称，当use_qcloud为1是，这个不能为空
+        oss_path: 腾讯云存储的根目录，当use_qcloud为1是，这个不能为空
 
     return：None
     '''
-    if use_qcloud:
-        assert secret_id != None
-        assert secret_key != None
-        assert region != None
-        assert Bucket != None
+    if use_qcloud == '1':
+        assert secret_id != ''
+        assert secret_key != ''
+        assert region != ''
+        assert Bucket != ''
+        assert oss_path != ''
     else:
-        assert site_url != None
+        assert site_url != ''
 
     for root, dirs, files in os.walk(path):
-        print("root", root)  # 当前目录路径
-        print("dirs", dirs)  # 当前路径下所有子目录
-        print("files", files)  # 当前路径下所有非目录子文件
+        # print("root", root)  # 当前目录路径
+        # print("dirs", dirs)  # 当前路径下所有子目录
+        # print("files", files)  # 当前路径下所有非目录子文件
         for myfile in files:
             if os.path.splitext(myfile)[1] == '.md':
-                mdfile_path_name = os.path.join(root, myfile)
+                root = root.replace('\\','/')
+                mdfile_path_name = root + '/' + myfile
                 hexomd2csdn(path, mdfile_path_name, save_path, use_qcloud, site_url, secret_id, secret_key, region, token=None, Bucket=Bucket)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--mode', type=str, default='', help='wiznote2hexo/md2hexo/markdown2hexo/hexomd2csdn/hexomarkdown2csdn.')
     parser.add_argument('--path', type=str, default='', help='存放markdown文件的根路径.')
     parser.add_argument('--pic_ori_path', type=str, default='index_files', help='用于的存储桶名称，当use_qcloud为1是，这个不能为空.')
     parser.add_argument('--mdfile_name', type=str, default='', help='markdown文件的名称.')
     parser.add_argument('--mdfile_path_name', type=str, default='', help='单个markdown的路径+名称.')
     parser.add_argument('--save_path', type=str, default='', help='markdown文件文件的保存根路径.')
     parser.add_argument('--use_qcloud', type=str, default='', help='是否使用腾讯云对象存储；若为0则使用site_url，否则使用腾讯云上.')
-    parser.add_argument('--site_url', type=str, default='www.zdaiot.com/', help='网站的名称+'/'，当use_qcloud为0是，这个不能为空.')
+    parser.add_argument('--site_url', type=str, default='', help='网站的名称/，当use_qcloud为0是，这个不能为空.')
     parser.add_argument('--secret_id', type=str, default='', help='用户的secret_id，当use_qcloud为1是，这个不能为空.')
     parser.add_argument('--secret_key', type=str, default='', help='用户的secret_key，当use_qcloud为1是，这个不能为空.')
     parser.add_argument('--region', type=str, default='', help='用户的region，当use_qcloud为1是，这个不能为空.')
     parser.add_argument('--token', type=str, default='', help='使用临时秘钥需要传入Token，默认为空,可不填.')
     parser.add_argument('--Bucket', type=str, default='', help='用于的存储桶名称，当use_qcloud为1是，这个不能为空.')
-    parser.add_argument('--mode', type=str, default='', help='wiznote2hexo/md2hexo/markdown2hexo/hexomd2csdn/hexomarkdown2csdn.')
+    parser.add_argument('--oss_path', type=str, default='', help='腾讯云存储的根目录，当use_qcloud为1是，这个不能为空.')
     config = parser.parse_args()
 
     if config.mode == 'wiznote2hexo':
@@ -337,7 +355,7 @@ if __name__ == "__main__":
         markdown2hexo(config.path, config.pic_ori_path, config.save_path)
     elif config.mode == 'hexomd2csdn':
         hexomd2csdn(config.path, config.mdfile_path_name, config.save_path, config.use_qcloud, config.site_url, config.secret_id, \
-            config.secret_key, config.region, token=config.token, Bucket=config.Bucket)
+            config.secret_key, config.region, token=config.token, Bucket=config.Bucket, oss_path=config.oss_path)
     elif config.mode == 'hexomarkdown2csdn':
         hexomarkdown2csdn(config.path, config.save_path, config.use_qcloud, config.site_url, config.secret_id, \
-            config.secret_key, config.region, token=config.token, Bucket=config.Bucket)
+            config.secret_key, config.region, token=config.token, Bucket=config.Bucket, oss_path=config.oss_path)
