@@ -258,7 +258,8 @@ python wiznote2hexo2csdn.py --mode=hexomarkdown2csdn --path=E:/blog/_posts --sav
 此时，就得到了可以直接复制到csdn平台、简书等支持markdown的平台上的markdown文件。
 
 ## TODO
-- [ ] ExportToMd插件子文件夹的支持
-- [ ] ExportToMd插件笔记更新日期的支持
+- [x] ExportToMd插件子文件夹的支持
+- [x] ExportToMd插件笔记更新日期的支持
+- [ ] 使用`Wiz.Editor.md插件`将html转为markdown
 
 
