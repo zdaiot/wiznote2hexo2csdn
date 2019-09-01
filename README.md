@@ -1,5 +1,9 @@
 最近一直考虑迁移为知笔记到hexo博客中，今天写了一个简单的脚本帮助我完成迁移任务。
 
+若需要使用 ExportToMd 插件，请阅读 [ExportToMd Readme](ExportToMd/README.md)
+
+若要使用 wiznote2hexo2csdn.py 中的函数，请继续阅读下文。
+
 ## 依赖环境
 ### 程序运行依赖
 - Python3
@@ -52,6 +56,7 @@ markdown文件头部如下所示：
 - 将一个Markown文件中的图片路径更改为markdown文件名；建立以为markdown文件名命名的文件夹，并将该Markdown的所有图片移动到该文件夹。
 - 根据markdown文件中的 categories 建立文件夹，并将更改后的markdown文件和图片文件夹移动到该文件夹。
 - 该方法适用于 https://github.com/lzuliuyun/ExportToMd 从为知笔记导出的笔记转为hexo格式的笔记。
+- 若直接使用我提供的 ExportToMd 插件，默认已经内置了该函数的功能。若非要使用，设置 ExportToMd.js 文件中`saveImgMdName: false, saveAccordingMdCategories: false,`
 
 ### 亮点
 - 支持一行有多张图片
@@ -98,6 +103,7 @@ python wiznote2hexo2csdn.py --mode=md2hexo --path=E:/blog/wizmd/ --pic_ori_path=
 - 将一个文件夹下的所有Markown文件中的图片路径更改为markdown文件名；建立以为markdown文件名命名的文件夹，并将该Markdown的所有图片移动到该文件夹。
 - 根据markdown文件中的 categories 建立文件夹，并将更改后的markdown文件和图片文件夹移动到该文件夹。
 - 该方法适用于 https://github.com/lzuliuyun/ExportToMd 从为知笔记导出的笔记转为hexo格式的笔记。
+- 若直接使用我提供的 ExportToMd 插件，默认已经内置了该函数的功能。若非要使用，设置 ExportToMd.js 文件中`saveImgMdName: false, saveAccordingMdCategories: false,`
 
 ### 亮点
 - 支持一行有多张图片
@@ -262,8 +268,8 @@ python wiznote2hexo2csdn.py --mode=hexomarkdown2csdn --path=E:/blog/_posts --sav
 - [x] ExportToMd插件笔记更新日期的支持
 - [x] 支持使用`Wiz.Editor.md插件`将html转为markdown
 - [x] 支持群组笔记(当`ExportToMd\ExportToMd.js`中的`useEditorMd: false`不支持)
-- [x] 支持保存图片到与markdown同名的目录
+- [x] 支持保存图片到与markdown文件同名的文件夹
 - [x] 复制图片时重命名，若index_files文件夹中有重名的，则重命名(Part)
-- [x] 支持根据为知笔记Markdown中的位置保存笔记
+- [x] 支持根据Markdown文件在为知笔记中的位置建立文件夹，并保存笔记
 
 
