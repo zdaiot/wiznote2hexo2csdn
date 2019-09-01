@@ -260,6 +260,6 @@ python wiznote2hexo2csdn.py --mode=hexomarkdown2csdn --path=E:/blog/_posts --sav
 ## TODO
 - [x] ExportToMd插件子文件夹的支持
 - [x] ExportToMd插件笔记更新日期的支持
-- [ ] 使用`Wiz.Editor.md插件`将html转为markdown
+- [x] 使用`Wiz.Editor.md插件`将html转为markdown
 
 
