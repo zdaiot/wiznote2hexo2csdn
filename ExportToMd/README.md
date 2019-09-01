@@ -24,6 +24,8 @@
 - 新增支持markdown的updated标签
 - 新增支持多级目录，设置showRootDir为false
 - 新增tags和categories各项之间使用", "间隔，更加美观
+- 新增配置项useEditorMd支持使用`Wiz.Editor.md插件`将html转为markdown
+- 支持群组笔记
 
 [2018-07-10]
 - 新增配置项showRootDir导出标签categories是否为文件路径根目录
