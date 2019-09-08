@@ -143,7 +143,7 @@ def md2hexo(path, pic_ori_path, mdfile_path_name, save_path):
 
     Args：
         path: 存放markdown文件的根路径
-        pic_ori_path: 存放所有图片的原始路径
+        pic_ori_path: 存放所有图片的原始相对path的路径
         mdfile_path_name: 单个markdown的路径+名称
         save_path: markdown文件文件的保存根路径，结尾不以 / 结尾
 
@@ -209,7 +209,7 @@ def markdown2hexo(path, pic_ori_path, save_path):
     
     Args：
         path: 存放markdown文件的路径
-        pic_ori_path: 存放所有图片的路径
+        pic_ori_path: 存放所有图片的原始相对path的路径
         save_path: markdown文件文件的保存根路径
 
     return：None
@@ -406,7 +406,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--mode', type=str, default='', help='wiznote2hexo/md2hexo/markdown2hexo/hexomd2csdn/hexomarkdown2csdn/add_update_time/add_update_times.')
     parser.add_argument('--path', type=str, default='', help='存放markdown文件的根路径.')
-    parser.add_argument('--pic_ori_path', type=str, default='index_files', help='用于的存储桶名称，当use_qcloud为1是，这个不能为空.')
+    parser.add_argument('--pic_ori_path', type=str, default='index_files', help='存放所有图片的原始相对path的路径.')
     parser.add_argument('--mdfile_name', type=str, default='', help='markdown文件的名称.')
     parser.add_argument('--mdfile_path_name', type=str, default='', help='单个markdown的路径+名称.')
     parser.add_argument('--save_path', type=str, default='', help='markdown文件文件的保存根路径.')
