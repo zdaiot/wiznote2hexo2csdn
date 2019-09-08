@@ -3,6 +3,8 @@ import os
 import shutil
 import glob
 import argparse
+import time
+import platform
 
 def deal_re_result(re_result, line, split_str):
     '''处理匹配出来的结果，得到当前行中所有图片的原始相对路径+名称
@@ -329,9 +331,80 @@ def hexomarkdown2csdn(path, save_path, use_qcloud, site_url, secret_id, secret_k
                 mdfile_path_name = root + '/' + myfile
                 hexomd2csdn(path, mdfile_path_name, save_path, use_qcloud, site_url, secret_id, secret_key, region, token=None, Bucket=Bucket)
 
+
+def add_update_time(mdfile_path_name):
+    '''读取文件的更改时间，并更新markdown文件中的updated标签
+
+    Args：
+        mdfile_path_name：markdown文件的路径+名称
+
+    return：None
+    '''
+    # mdfile_path_name = mdfile_path_name.encode('utf-8')
+    with open(mdfile_path_name, 'r', encoding='UTF-8') as fr:
+        data = fr.read()
+
+    # 寻找updated标签
+    before = [x for x in re.finditer(r'\-{3}', data)]
+    second_sign = before[1].end()
+
+    sysstr = platform.system()
+    if(sysstr =="Windows"):
+        line_break = '\n'
+    else:
+        line_break = '/n'
+        
+    head_info = data[before[0].start():second_sign].split(line_break)
+
+    # 去掉头部信息
+    data = data[second_sign:].strip() # strip() 用于移除字符串头尾指定的字符（默认为空格或换行符）
+
+    modify_time = time.strftime("%Y/%m/%d %X", time.localtime(os.stat(mdfile_path_name).st_mtime))
+
+    # 寻找updated
+    flag = 0
+    for index, line in enumerate(head_info):
+        if 'updated' in line:
+            print('updated time!')
+            head_info[index] = 'updated: ' + modify_time
+            flag = 1
+            break
+
+    # 如果没找到的话
+    if flag == 0:
+        for index, line in enumerate(head_info):
+            if 'date:' in line:
+                print('not updated information, add it!')
+                head_info.insert(index + 1, 'updated: ' + modify_time)
+                break
+
+    head_info = line_break.join(head_info) + line_break
+    data = head_info + data
+
+    with open(os.path.join(mdfile_path_name), 'w', encoding='UTF-8') as fw:
+        fw.write(data)
+
+def add_update_times(path):
+    '''读取path文件夹下所有markdown文件的更改时间，并更新其中的updated标签
+
+    Args：
+        path：存放markdown文件的路径
+
+    return：None
+    '''
+    for root, dirs, files in os.walk(path):
+        # print("root", root)  # 当前目录路径
+        # print("dirs", dirs)  # 当前路径下所有子目录
+        # print("files", files)  # 当前路径下所有非目录子文件
+        for myfile in files:
+            if os.path.splitext(myfile)[1] == '.md':
+                root = root.replace('\\','/')
+                mdfile_path_name = root + '/' + myfile
+                add_update_time(mdfile_path_name)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', type=str, default='', help='wiznote2hexo/md2hexo/markdown2hexo/hexomd2csdn/hexomarkdown2csdn.')
+    parser.add_argument('--mode', type=str, default='', help='wiznote2hexo/md2hexo/markdown2hexo/hexomd2csdn/hexomarkdown2csdn/add_update_time/add_update_times.')
     parser.add_argument('--path', type=str, default='', help='存放markdown文件的根路径.')
     parser.add_argument('--pic_ori_path', type=str, default='index_files', help='用于的存储桶名称，当use_qcloud为1是，这个不能为空.')
     parser.add_argument('--mdfile_name', type=str, default='', help='markdown文件的名称.')
@@ -359,3 +432,7 @@ if __name__ == "__main__":
     elif config.mode == 'hexomarkdown2csdn':
         hexomarkdown2csdn(config.path, config.save_path, config.use_qcloud, config.site_url, config.secret_id, \
             config.secret_key, config.region, token=config.token, Bucket=config.Bucket, oss_path=config.oss_path)
+    elif config.mode == 'add_update_time':
+        add_update_time(config.mdfile_path_name)
+    elif config.mode == 'add_update_times':
+        add_update_times(config.path)

@@ -263,6 +263,69 @@ python wiznote2hexo2csdn.py --mode=hexomarkdown2csdn --path=E:/blog/_posts --sav
 
 此时，就得到了可以直接复制到csdn平台、简书等支持markdown的平台上的markdown文件。
 
+## add_update_time函数
+### 功能
+读取文件的更改时间，并更新markdown文件中的updated标签
+
+### 亮点
+- 支持windows，mac，Linux系统
+- 支持若没有updated标签，则添加
+  
+### 使用方法
+以`E:/blog/wizmd/Linux`下的`Centos搭建Ngrok实现内网穿透.md`文件为例，
+
+该文件的头部信息如下所示：
+
+![](IMG/2019-09-09-00-10-11.png)
+
+运行程序：
+```
+python wiznote2hexo2csdn.py --mode=add_update_time --mdfile_path_name=E:/blog/wizmd/Linux/Centos搭建Ngrok实现内网穿透.md
+```
+
+运行完，该文件的头部信息如下;
+
+![](IMG/2019-09-09-00-18-46.png)
+
+可以看到头部updated标签已经更新
+
+## add_update_times函数
+### 功能
+读取path文件夹下所有markdown文件的更改时间，并更新其中的updated标签
+
+### 亮点
+- 支持windows，mac，Linux系统
+- 支持若没有updated标签，则添加
+- 支持多级目录
+  
+### 使用方法
+以`E:/blog/wizmd/Linux`下的`Centos搭建Ngrok实现内网穿透.md`文件和`E:/blog/wizmd/Kit`下的`双电脑、双显示屏工作环境搭建.md`文件为例，
+
+`Centos搭建Ngrok实现内网穿透.md`文件的头部信息如下所示：
+
+![](IMG/2019-09-09-00-10-11.png)
+
+`双电脑、双显示屏工作环境搭建.md`文件的头部信息如下所示：
+
+![](IMG/2019-09-09-00-22-17.png)
+
+运行程序：
+```
+python wiznote2hexo2csdn.py --mode=add_update_times --path=E:/blog/wizmd/
+```
+
+`Centos搭建Ngrok实现内网穿透.md`文件的头部信息如下所示：
+
+![](IMG/2019-09-09-00-18-46.png)
+
+可以看到头部updated标签已经更新
+
+`双电脑、双显示屏工作环境搭建.md`文件的头部信息如下所示：
+
+![](IMG/2019-09-09-00-23-11.png)
+
+可以看到头部updated标签已经添加
+
 ## TODO
 - [x] ExportToMd插件子文件夹的支持
 - [x] ExportToMd插件笔记更新日期的支持
@@ -272,5 +335,6 @@ python wiznote2hexo2csdn.py --mode=hexomarkdown2csdn --path=E:/blog/_posts --sav
 - [ ] 复制图片时重命名，若index_files文件夹中有重名的，则重命名(Part)
 - [x] 支持根据Markdown文件在为知笔记中的位置建立文件夹，并保存笔记
 - [ ] 支持附件的导出
+- [ ] 貌似参数路径不能有中文，例如`E:/blog/wizmd/Linux/个人博客/Centos搭建Frp实现内网穿透.md `
 
 

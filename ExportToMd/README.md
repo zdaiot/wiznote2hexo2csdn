@@ -50,6 +50,9 @@
 ![](IMG/2019-09-01-20-59-29.png)
 
 ### 日志
+[2019-09-09]
+- 去掉导出markdown文件中的copyright标签
+
 [2019-09-01]
 - 新增支持markdown的updated标签
 - 新增支持多级目录，删除showRootDir配置项
