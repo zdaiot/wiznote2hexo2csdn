@@ -378,7 +378,7 @@ def add_update_time(mdfile_path_name):
                 head_info.insert(index + 1, 'updated: ' + modify_time)
                 break
 
-    head_info = line_break.join(head_info) + line_break
+    head_info = line_break.join(head_info) + line_break + line_break
     data = head_info + data
 
     with open(os.path.join(mdfile_path_name), 'w', encoding='UTF-8') as fw:
