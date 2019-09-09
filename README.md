@@ -335,6 +335,5 @@ python wiznote2hexo2csdn.py --mode=add_update_times --path=E:/blog/wizmd/
 - [ ] 复制图片时重命名，若index_files文件夹中有重名的，则重命名(Part)
 - [x] 支持根据Markdown文件在为知笔记中的位置建立文件夹，并保存笔记
 - [ ] 支持附件的导出
-- [ ] 貌似参数路径不能有中文，例如`E:/blog/wizmd/Linux/个人博客/Centos搭建Frp实现内网穿透.md `
 
 
