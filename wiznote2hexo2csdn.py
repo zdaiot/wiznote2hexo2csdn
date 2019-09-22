@@ -4,7 +4,6 @@ import shutil
 import glob
 import argparse
 import time
-import platform
 
 def deal_re_result(re_result, line, split_str):
     '''处理匹配出来的结果，得到当前行中所有图片的原始相对路径+名称
@@ -348,11 +347,7 @@ def add_update_time(mdfile_path_name):
     before = [x for x in re.finditer(r'\-{3}', data)]
     second_sign = before[1].end()
 
-    sysstr = platform.system()
-    if(sysstr =="Windows"):
-        line_break = '\n'
-    else:
-        line_break = '/n'
+    line_break = '\n'
         
     head_info = data[before[0].start():second_sign].split(line_break)
 
